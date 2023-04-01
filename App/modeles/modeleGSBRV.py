@@ -61,36 +61,49 @@ def getRapportsVisite( matricule, mdp ) :
 		curseur = getConnexionBD().cursor()
 		requete = '''
 					select
-						MONTH(rv.rap_date_visite) as mois,
-						YEAR(rv.rap_date_visite) as annee,
+						rv.Mois,
+						rv.Annee,
 						rv.rap_num ,
-						rv.rap_date_visite ,
 						rv.rap_bilan ,
 						p.pra_nom ,
 						p.pra_prenom ,
 						p.pra_cp ,
 						p.pra_ville
-					from RapportVisite as rv
+					from ( 
+						select
+							rv.vis_matricule,
+							v.vis_mdp,
+							DATE_FORMAT(rv.rap_date_visite, '%M') as Mois, 
+							DATE_FORMAT(rv.rap_date_visite, '%Y') as Annee,
+							rv.rap_num ,
+							rv.rap_bilan,
+							rv.pra_num
+						from RapportVisite as rv
+						inner join Visiteur as v
+						on rv.vis_matricule = v.vis_matricule
+						where v.vis_matricule = %s
+						and v.vis_mdp = %s
+						) as rv
 					inner join Praticien as p
 					on p.pra_num = rv.pra_num
-					where rv.vis_matricule = %s
-					order by rv.rap_date_visite
+					order by rv.Mois
 				'''
 
-		curseur.execute( requete , ( matricule , ) )
+		curseur.execute( requete , ( matricule , mdp ) )
 
 		enregistrements = curseur.fetchall()
 
 		rapports = []
 		for unEnregistrement in enregistrements :
 			unRapport = {}
-			unRapport[ 'rap_num' ] = unEnregistrement[ 0 ]
-			unRapport[ 'rap_date_visite' ] = '%04d-%02d-%02d' % ( unEnregistrement[ 1 ].year , unEnregistrement[ 1 ].month , unEnregistrement[ 1 ].day )
-			unRapport[ 'rap_bilan' ] = unEnregistrement[ 2 ]
-			unRapport[ 'pra_nom' ] = unEnregistrement[ 3 ]
-			unRapport[ 'pra_prenom' ] = unEnregistrement[ 4 ]
-			unRapport[ 'pra_cp' ] = unEnregistrement[ 5 ]
-			unRapport[ 'pra_ville' ] = unEnregistrement[ 5 ]
+			unRapport[ 'Mois' ] = unEnregistrement[ 0 ]
+			unRapport[ 'Annee' ] = unEnregistrement[ 1 ]
+			unRapport[ 'rap_num' ] = unEnregistrement[ 2 ]
+			unRapport[ 'rap_bilan' ] = unEnregistrement[ 3 ]
+			unRapport[ 'pra_nom' ] = unEnregistrement[ 4 ]
+			unRapport[ 'pra_prenom' ] = unEnregistrement[ 5 ]
+			unRapport[ 'pra_cp' ] = unEnregistrement[ 6 ]
+			unRapport[ 'pra_ville' ] = unEnregistrement[ 7 ]
 			rapports.append( unRapport )
 
 		curseur.close()
