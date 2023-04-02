@@ -39,9 +39,9 @@ def getRapportsVisite( matricule, mdp ) :
 	return reponse
 
 
-@app.route( '/rapports/echantillons/<matricule>/<numRapport>' , methods = [ 'GET' ] )
-def getEchantillonsOfferts( matricule , numRapport ) :
-	offres = modeleGSBRV.getEchantillonsOfferts( matricule , numRapport )
+@app.route( '/rapports/echantillons/<matricule>/<mdp>/<numRapport>' , methods = [ 'GET' ] )
+def getEchantillonsOfferts( matricule, mdp ,numRapport ) :
+	offres = modeleGSBRV.getEchantillonsOfferts( matricule, mdp, numRapport )
 	print(offres)
 
 	if offres != None :
