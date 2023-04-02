@@ -55,14 +55,13 @@ def seConnecter( matricule , mdp ) :
 
 	except :
 		return None
-
+	
 def getRapportsVisite( matricule, mdp ) :
 	try :
 		curseur = getConnexionBD().cursor()
 		requete = '''
 					select
-						rv.Mois,
-						rv.Annee,
+						rv.date,
 						rv.rap_num ,
 						rv.rap_bilan ,
 						p.pra_nom ,
@@ -73,8 +72,7 @@ def getRapportsVisite( matricule, mdp ) :
 						select
 							rv.vis_matricule,
 							v.vis_mdp,
-							DATE_FORMAT(rv.rap_date_visite, '%M') as Mois, 
-							DATE_FORMAT(rv.rap_date_visite, '%Y') as Annee,
+							DATE_FORMAT(rv.rap_date_visite, '%M %Y') as date,
 							rv.rap_num ,
 							rv.rap_bilan,
 							rv.pra_num
@@ -86,7 +84,7 @@ def getRapportsVisite( matricule, mdp ) :
 						) as rv
 					inner join Praticien as p
 					on p.pra_num = rv.pra_num
-					order by rv.Mois
+					order by rv.date
 				'''
 
 		curseur.execute( requete , ( matricule , mdp ) )
@@ -96,14 +94,13 @@ def getRapportsVisite( matricule, mdp ) :
 		rapports = []
 		for unEnregistrement in enregistrements :
 			unRapport = {}
-			unRapport[ 'Mois' ] = unEnregistrement[ 0 ]
-			unRapport[ 'Annee' ] = unEnregistrement[ 1 ]
-			unRapport[ 'rap_num' ] = unEnregistrement[ 2 ]
-			unRapport[ 'rap_bilan' ] = unEnregistrement[ 3 ]
-			unRapport[ 'pra_nom' ] = unEnregistrement[ 4 ]
-			unRapport[ 'pra_prenom' ] = unEnregistrement[ 5 ]
-			unRapport[ 'pra_cp' ] = unEnregistrement[ 6 ]
-			unRapport[ 'pra_ville' ] = unEnregistrement[ 7 ]
+			unRapport[ 'date' ] = unEnregistrement[ 0 ]
+			unRapport[ 'num' ] = unEnregistrement[ 1 ]
+			unRapport[ 'bilan' ] = unEnregistrement[ 2 ]
+			unRapport[ 'nom_Praticien' ] = unEnregistrement[ 3 ]
+			unRapport[ 'prenom_Praticien' ] = unEnregistrement[ 4 ]
+			unRapport[ 'cp_Praticien' ] = unEnregistrement[ 5 ]
+			unRapport[ 'ville_Praticien' ] = unEnregistrement[ 6 ]
 			rapports.append( unRapport )
 
 		curseur.close()
