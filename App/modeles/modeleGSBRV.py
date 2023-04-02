@@ -112,20 +112,26 @@ def getRapportsVisite( matricule, mdp ) :
 	except :
 		return None
 
-def getEchantillonsOfferts( matricule , numRapportVisite ) :
+def getEchantillonsOfferts( matricule, mdp, numRapportVisite ) :
 
 	try :
 		curseur = getConnexionBD().cursor()
 		requete = '''
 					select med_nomcommercial , off_quantite
-					from Offrir as o
+					from (
+						select v.vis_matricule, v.vis_mdp, o.rap_num, o.med_depotlegal, o.off_quantite
+							from Offrir as o
+							inner join Visiteur as v 
+							on o.vis_matricule = v.vis_matricule
+					) as o
 					inner join Medicament as m
 					on m.med_depotlegal = o.med_depotlegal
 					where o.vis_matricule = %s
+					and o.vis_mdp = %s
 					and o.rap_num = %s
 				'''
 
-		curseur.execute( requete , ( matricule , numRapportVisite ) )
+		curseur.execute( requete , ( matricule, mdp, numRapportVisite ) )
 
 		enregistrements = curseur.fetchall()
 
